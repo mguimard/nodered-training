@@ -1,0 +1,97 @@
+# Docker compose file for local demos
+#
+# Services are all in the same network:
+#
+# NodeRED :    1880
+# Mosquitto :  1883 (mqtt)  9001 (ws)
+# WebAPI :     3000 (http, CORS)
+# WS :         3001 (http, CORS)
+# ChatApp:     8080 (html app)
+# MySQL:       3306
+# MQTT client: 8081
+
+services:
+
+  nodered:
+    image: nodered/node-red
+    container_name: nodered
+    volumes:
+      - nodered:/data
+    networks:
+    - mynet
+    ports:
+    - 1880:1880
+
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - mynet
+
+  api:
+    image: node:18-alpine
+    volumes:
+      - ./api:/app
+    ports:
+      - 3000:3000
+    command: node /app/main.js
+    networks:
+      - mynet
+
+  ws:
+    image: node:18-alpine
+    volumes:
+      - ./ws:/app
+    ports:
+      - 3001:3001
+    command: node /app/main.js
+    networks:
+      - mynet
+
+  chatapp:
+    image: nginx:alpine
+    ports: 
+      - 8080:80
+    volumes:
+      - ./chatapp:/usr/share/nginx/html
+    networks:
+      - mynet
+
+  mqtt-client:
+    image: nginx:alpine
+    ports: 
+      - 8081:80
+    volumes:
+      - ./mqtt-client:/usr/share/nginx/html
+    networks:
+      - mynet
+
+  mysql:
+    image: mysql:5.7
+    mem_limit: 1G
+    ulimits:
+      nofile: 
+        soft: 1048576
+        hard: 1048576
+    networks:
+      - mynet
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
+      - mysql:/var/lib/mysql
+
+volumes:
+  mysql:
+  nodered:
+
+networks:
+  mynet:
