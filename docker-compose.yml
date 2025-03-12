@@ -8,7 +8,8 @@
 # WS :         3001 (http, CORS)
 # ChatApp:     8080 (html app)
 # MySQL:       3306
-# MQTT client: 8081
+# MQTT client: 8081 (html app)
+# LEDs app:    8082 (html app)
 
 services:
 
@@ -69,6 +70,15 @@ services:
       - 8081:80
     volumes:
       - ./mqtt-client:/usr/share/nginx/html
+    networks:
+      - mynet
+  
+  leds-app:
+    image: nginx:alpine
+    ports: 
+      - 8082:80
+    volumes:
+      - ./leds-app:/usr/share/nginx/html
     networks:
       - mynet
 

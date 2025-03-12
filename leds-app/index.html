@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>MQTT client app</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+<body>
+
+    <div id="leds"></div>
+    <pre id="messages"></pre>
+    
+
+    <script type="module">
+        import  mqtt from './node_modules/mqtt/dist/mqtt.esm.js'
+        const client = mqtt.connect("ws://localhost:9001");
+
+        const leds = document.getElementById('leds')
+        const number_of_leds = 20;
+
+        for(let i = 0 ; i < number_of_leds ; i++){
+            leds.innerHTML += 
+            ('<span id="led-'+i+'" style="width: 32px; height: 32px; background-color: black; display: inline-block; margin: 1px"></span>')
+        }
+
+        const lightUp = function({id, color}) {
+            console.log(arguments)
+            const led = document.getElementById('led-'+id)
+            if(!led) {
+                throw "No led availabled for id = " + id
+            }
+            led.style.backgroundColor = color
+        }
+
+        client.on("connect", () => {
+            document.getElementById('messages').prepend("Connected to broker\n")
+            client.subscribe("leds");
+        });
+
+        client.on("message", (topic, message) => {
+            document.getElementById('messages').prepend("message: " + message.toString() +"\n")
+
+            try{
+                let str = message.toString()
+                if(str === 'off'){
+                    for(let i = 0; i < number_of_leds; i ++){
+                        lightUp({id:i, color:'black'})
+                    }
+                    return
+                }
+                let obj = JSON.parse(message.toString())
+                lightUp(obj);
+            }
+            catch(err){
+                document.getElementById('messages').prepend("error for message: " + message.toString() + ": "+ err + "\n")
+            }
+        });
+    </script>
+
+</body>
+</html>

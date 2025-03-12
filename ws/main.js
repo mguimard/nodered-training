@@ -3,8 +3,6 @@ const wss = new WebSocket.Server({ port: 3001 })
 
 let clients = []
 
-
-
 wss.on('connection', (ws) => {
     console.log('New client')
     clients.push(ws)
