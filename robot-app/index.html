@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>MQTT client app</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+<body>
+
+    <div id="robot" style="position:absolute; left: 0px; top: 0px; width: 128px; height: 128px; background-color: brown;"></div>
+    <pre id="messages"></pre>
+    
+    <script type="module">
+        import  mqtt from './node_modules/mqtt/dist/mqtt.esm.js'
+        const client = mqtt.connect("ws://localhost:9001")
+        
+        const robot = document.getElementById('robot')
+        const indicator = document.getElementById('indicator')
+
+        const move = function({x, y}) {
+            robot.style.left = x + 'px'
+            robot.style.top = y + 'px'
+        }
+        
+        client.on("connect", () => {
+            messages.prepend("Connected to broker\n")
+            client.subscribe("robot")
+        });
+
+        client.on("message", (topic, message) => {
+            let str = message.toString()
+            messages.prepend("Received: "+str+"\n")
+            
+            try {
+                let obj = JSON.parse(str)
+                move(obj)
+            } 
+            catch(err){
+                messages.prepend("Error: "+err+"\n")
+            }
+        });
+    </script>
+
+</body>
+</html>

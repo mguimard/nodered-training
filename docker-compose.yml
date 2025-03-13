@@ -11,6 +11,7 @@
 # MQTT client:   8081 (html app)
 # LEDs app:      8082 (html app)
 # D/N indicator: 8083 (html app)
+# Robot app:     8084 (html app)
 
 services:
 
@@ -89,6 +90,15 @@ services:
       - 8083:80
     volumes:
       - ./day-night-indicator:/usr/share/nginx/html
+    networks:
+      - mynet
+
+  robot-app:
+    image: nginx:alpine
+    ports: 
+      - 8084:80
+    volumes:
+      - ./robot-app:/usr/share/nginx/html
     networks:
       - mynet
 
