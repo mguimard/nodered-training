@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>MQTT client app</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+<body>
+
+    <div id="indicator" style="width: 128px; height: 128px"></div>
+    <pre id="messages"></pre>
+    
+
+    <script type="module">
+        import  mqtt from './node_modules/mqtt/dist/mqtt.esm.js'
+        const client = mqtt.connect("ws://localhost:9001")
+        
+        const messages = document.getElementById('messages')
+        const indicator = document.getElementById('indicator')
+        
+        client.on("connect", () => {
+            messages.prepend("Connected to broker\n")
+            client.subscribe("day-night-status")
+        });
+
+        client.on("message", (topic, message) => {
+            let str = message.toString()
+            messages.prepend("Received: "+str+"\n")
+            
+            if(str === 'day') {
+                indicator.style.background = '#EF810E'
+            }
+            else if(str === 'night') {
+                indicator.style.background = "#001A26"
+            }
+            else {
+                messages.prepend("Error: expected message isn't 'day' neither 'night'\n")
+            }
+        });
+    </script>
+
+</body>
+</html>

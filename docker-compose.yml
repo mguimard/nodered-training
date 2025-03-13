@@ -2,14 +2,15 @@
 #
 # Services are all in the same network:
 #
-# NodeRED :    1880
-# Mosquitto :  1883 (mqtt)  9001 (ws)
-# WebAPI :     3000 (http, CORS)
-# WS :         3001 (http, CORS)
-# ChatApp:     8080 (html app)
-# MySQL:       3306
-# MQTT client: 8081 (html app)
-# LEDs app:    8082 (html app)
+# NodeRED :      1880
+# Mosquitto :    1883 (mqtt)  9001 (ws)
+# WebAPI :       3000 (http, CORS)
+# WS :           3001 (http, CORS)
+# ChatApp:       8080 (html app)
+# MySQL:         3306
+# MQTT client:   8081 (html app)
+# LEDs app:      8082 (html app)
+# D/N indicator: 8083 (html app)
 
 services:
 
@@ -79,6 +80,15 @@ services:
       - 8082:80
     volumes:
       - ./leds-app:/usr/share/nginx/html
+    networks:
+      - mynet
+
+  day-night-indicator:
+    image: nginx:alpine
+    ports: 
+      - 8083:80
+    volumes:
+      - ./day-night-indicator:/usr/share/nginx/html
     networks:
       - mynet
 
