@@ -1,0 +1,51 @@
+# Docker compose file for test server demos
+#
+# Services are all in the same network:
+#
+# Mosquitto :    11883 (mqtt)  19001 (ws)
+# LEDs app:      18082 (html app)
+# D/N indicator: 18083 (html app)
+# Robot app:     18084 (html app)
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    ports:
+      - 11883:1883
+      - 19001:9001
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - mynet
+
+  leds-app:
+    image: nginx:alpine
+    ports: 
+      - 8082:80
+    volumes:
+      - ./leds-app:/usr/share/nginx/html
+    networks:
+      - mynet
+
+  day-night-indicator:
+    image: nginx:alpine
+    ports: 
+      - 8083:80
+    volumes:
+      - ./day-night-indicator:/usr/share/nginx/html
+    networks:
+      - mynet
+
+  robot-app:
+    image: nginx:alpine
+    ports: 
+      - 8084:80
+    volumes:
+      - ./robot-app:/usr/share/nginx/html
+    networks:
+      - mynet
+
+networks:
+  mynet:
